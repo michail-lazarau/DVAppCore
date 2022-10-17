@@ -73,7 +73,14 @@
 @implementation UIViewController(orientationFix)
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     NSNumber *interfaceOrientationsData = [self ac_interfaceOrientationsData];
-    return interfaceOrientationsData ? interfaceOrientationsData.integerValue : [[self ac_appDelegate] ac_interfaceOrientationsDefault];
+    if (interfaceOrientationsData) {
+        return interfaceOrientationsData.integerValue;
+    } else {
+        if ([[self ac_appDelegate] respondsToSelector:@selector(ac_interfaceOrientationsDefault)]) {
+            return [[self ac_appDelegate] ac_interfaceOrientationsDefault];
+        }
+        return UIInterfaceOrientationMaskPortrait;
+    };
 }
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation {
@@ -93,15 +100,19 @@
 }
 
 - (NSNumber *)ac_interfaceOrientationsData {
-    NSNumber *interfaceOrientationsData = [self ac_appDelegate].ac_interfaceOrientations[NSStringFromClass([self class])];
+    if (![[self ac_appDelegate] respondsToSelector:@selector(ac_interfaceOrientations)]) {
+        return nil;
+    }
     
+    NSNumber *interfaceOrientationsData = [self ac_appDelegate].ac_interfaceOrientations[NSStringFromClass([self class])];
+
     if (!interfaceOrientationsData) {
         if ([self isKindOfClass:[UINavigationController class]]) {
             UIViewController *visibleVC = ((UINavigationController *)self).visibleViewController;
             interfaceOrientationsData = [self ac_appDelegate].ac_interfaceOrientations[NSStringFromClass([visibleVC class])];
         }
     }
-    
+
     return interfaceOrientationsData;
 }
 
