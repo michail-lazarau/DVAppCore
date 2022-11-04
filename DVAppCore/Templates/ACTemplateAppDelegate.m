@@ -76,18 +76,21 @@
     if (interfaceOrientationsData) {
         return interfaceOrientationsData.integerValue;
     } else {
-        if ([[self ac_appDelegate] respondsToSelector:@selector(ac_interfaceOrientationsDefault)]) {
-            return [[self ac_appDelegate] ac_interfaceOrientationsDefault];
-        }
-        return UIInterfaceOrientationMaskPortrait;
+        return [[self ac_appDelegate] respondsToSelector:@selector(ac_interfaceOrientationsDefault)]
+        ? [[self ac_appDelegate] ac_interfaceOrientationsDefault]
+        : UIInterfaceOrientationMaskAll;
     };
 }
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation {
     NSNumber *interfaceOrientationsData = [self ac_interfaceOrientationsData];
-    return [self interfaceOrientationByMask:(interfaceOrientationsData
-                                             ? interfaceOrientationsData.integerValue
-                                             : [[self ac_appDelegate] ac_interfaceOrientationsDefault])];
+    if (interfaceOrientationsData) {
+        return [self interfaceOrientationByMask: interfaceOrientationsData.integerValue];
+    } else {
+        return [[self ac_appDelegate] respondsToSelector:@selector(ac_interfaceOrientationsDefault)]
+        ? [[self ac_appDelegate] ac_interfaceOrientationsDefault]
+        : UIInterfaceOrientationPortrait;
+    }
 }
 
 - (BOOL)shouldAutorotate {
